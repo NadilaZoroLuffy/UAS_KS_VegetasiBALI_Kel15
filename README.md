@@ -6,7 +6,7 @@ Proyek UAS Kapita Selekta Sistem Informasi — analisis perubahan tutupan vegeta
 
 **Divisi Kapita Selekta GIS** (Konteks Spasial, WebGIS, Narasi, Presentasi)
 - Sanzio  — GIS & Spatial Analyst
-- Nadila — WebGIS Developer
+- Nadila Aprilla — WebGIS Developer
 - Rania  — Project Lead & Documentation
 
 **Divisi Maha Data** (Data Pipeline, Machine Learning, Evaluasi Statistik)
@@ -31,7 +31,7 @@ Proyek UAS Kapita Selekta Sistem Informasi — analisis perubahan tutupan vegeta
 
 ## Cara Membuka WebGIS
 
-**Live demo**: `[TODO: isi link GitHub Pages setelah deploy]`
+**Live demo**: `https://vegetasi-ks-denpasar.vercel.app/`
 
 **Menjalankan secara lokal** (wajib pakai local server, tidak bisa dobel-klik langsung karena WebGIS memuat data GeoJSON via `fetch()`):
 ```bash

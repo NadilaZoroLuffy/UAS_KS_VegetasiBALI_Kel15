@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WebGIS interaktif untuk analisis perubahan vegetasi Kota Denpasar tahun 2024–2025 menggunakan citra Sentinel-2 dan Random Forest.">
+  <title>WebGIS Vegetasi Denpasar 2024–2025</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Background music: loops continuously, muted-autoplay fallback for browser policy -->
+  <audio id="bg-music" src="assets/bali-audio.mp3" loop preload="auto"></audio>
+  <button id="music-toggle" aria-label="Mute/unmute musik" title="Mute/unmute musik">🔊</button>
+
+
+  <!-- ════════════════════════ HEADER ════════════════════════ -->
+  <header class="header" id="site-header">
+    <div class="header-inner">
+      <div class="header-side header-side-left" title="Universitas Bakrie">
+        <img src="assets/logo-bakrie.png" alt="Logo Universitas Bakrie" class="header-logo-img">
+      </div>
+
+      <div class="header-center">
+        <div class="header-brand">
+          <span class="header-eyebrow">Kapita Selekta Sistem Informasi &middot; Universitas Bakrie</span>
+          <div class="header-text">
+            <h1>WebGIS Vegetasi Denpasar</h1>
+            <p>Analisis Perubahan Tutupan Vegetasi 2024–2025</p>
+          </div>
+        </div>
+
+        <nav class="tab-nav" id="main-nav" aria-label="Navigasi utama">
+          <button class="tab-btn active" data-tab="tab-peta" id="btn-peta">
+            <span class="tab-icon">🗺️</span>
+            <span>Peta Hasil</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-data" id="btn-data">
+            <span class="tab-icon">📊</span>
+            <span>Data & Proses</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-eval" id="btn-eval">
+            <span class="tab-icon">🎯</span>
+            <span>Evaluasi Model</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-insight" id="btn-insight">
+            <span class="tab-icon">💡</span>
+            <span>Insight Hasil</span>
+          </button>
+        </nav>
+
+        <div class="header-badge">
+          <span class="dot"></span>
+          Sentinel-2 &middot; Random Forest
+        </div>
+      </div>
+
+      <div class="header-side header-side-right" title="Kota Denpasar">
+        <img src="assets/logo-denpasar.png" alt="Logo Kota Denpasar" class="header-logo-img">
+      </div>
+    </div>
+    <div class="header-ornament"></div>
+  </header>
+
+  <!-- ════════════════════════ MAIN ════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ──────── TAB 1: PETA HASIL ──────── -->
+    <section class="tab-panel active" id="tab-peta">
+      <div class="map-container">
+        <div id="map"></div>
+        <div id="map-loading" style="position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:1000; background:rgba(20,20,30,0.85); color:#fff; padding:8px 16px; border-radius:20px; font-size:12.5px;">⏳ Memuat data GeoJSON asli (±7 MB)...</div>
+        <div class="map-legend" id="map-legend">
+          <h4>🗝️ Legenda</h4>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #94a3c0; border-style: dashed;"></div>
+            <span>Batas Kota Denpasar</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(34,197,94,0.5); border-color: #22c55e;"></div>
+            <span>Vegetasi 2024</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(6,182,212,0.5); border-color: #06b6d4;"></div>
+            <span>Vegetasi 2025</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(74,222,128,0.65); border-color: #4ade80;"></div>
+            <span>Gain (Bertambah Hijau)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(248,113,113,0.65); border-color: #f87171;"></div>
+            <span>Loss (Berkurang Hijau)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── TAB 2: DATA & PROSES ──────── -->
+    <section class="tab-panel" id="tab-data">
+      <div class="info-grid">
+        <!-- Card: Sumber Data -->
+        <div class="info-card animate-in delay-1">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">🛰️</div>
+            <div>
+              <h3>Sumber Data</h3>
+              <p>Citra Satelit Sentinel-2</p>
+            </div>
+          </div>
+          <ul class="info-list">
+            <li><span class="info-key">Koleksi</span><span class="info-val">COPERNICUS/S2_SR_HARMONIZED</span></li>
+            <li><span class="info-key">Jenis</span><span class="info-val">Surface Reflectance (SR) Harmonized</span></li>
+            <li><span class="info-key">Batas Administrasi</span><span class="info-val">FAO GAUL 2015 Level 2 (Kota Denpasar)</span></li>
+            <li><span class="info-key">Periode 2024</span><span class="info-val">1 Jun – 30 Sep 2024</span></li>
+            <li><span class="info-key">Periode 2025</span><span class="info-val">1 Jun – 30 Sep 2025</span></li>
+            <li><span class="info-key">Jumlah Citra</span><span class="info-val">27 citra (2024) · 18 citra (2025)</span></li>
+            <li><span class="info-key">Alasan Periode</span><span class="info-val">Musim kemarau sama, hindari bias fenologi</span></li>
+          </ul>
+        </div>
+
+        <!-- Card: Preprocessing -->
+        <div class="info-card animate-in delay-2">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: rgba(168,85,247,0.15); color: var(--accent-purple);">⚙️</div>
+            <div>
+              <h3>Preprocessing</h3>
+              <p>Cloud Masking & Composite</p>
+            </div>
+          </div>
+          <ul class="info-list">
+            <li><span class="info-key">Cloud Masking</span><span class="info-val">QA60 (Bit 10 Cirrus, Bit 11 Opaque) + SCL (mask 3, 8, 9, 10, 11)</span></li>
+            <li><span class="info-key">Threshold</span><span class="info-val">CLOUDY_PIXEL_PERCENTAGE &lt; 20%</span></li>
+            <li><span class="info-key">Composite</span><span class="info-val">Median Composite (.median())</span></li>
+            <li><span class="info-key">Band Dasar</span><span class="info-val">B2, B3, B4, B8 (10m), B11, B12 (20m)</span></li>
+            <li><span class="info-key">Indeks</span><span class="info-val">NDVI, NDWI, NDBI</span></li>
+            <li><span class="info-key">Total Feature Stack</span><span class="info-val">9 band (6 band dasar + 3 indeks)</span></li>
+            <li><span class="info-key">Area Studi</span><span class="info-val">Kota Denpasar (ROI, clip)</span></li>
+          </ul>
+        </div>
+
+        <!-- Card: Ground Truth -->
+        <div class="info-card animate-in delay-3">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: rgba(34,197,94,0.15); color: var(--accent-green);">📌</div>
+            <div>
+              <h3>Ground Truth & Training</h3>
+              <p>Sampel Titik Acuan</p>
+            </div>
+          </div>
+          <ul class="info-list">
+            <li><span class="info-key">Sumber</span><span class="info-val">Digitasi manual + citra resolusi tinggi</span></li>
+            <li><span class="info-key">Kelas</span><span class="info-val">Vegetasi (1) vs Non-Vegetasi (0)</span></li>
+            <li><span class="info-key">Total Ground Truth</span><span class="info-val">300 titik (75 per kelas per tahun)</span></li>
+            <li><span class="info-key">Total Data Testing</span><span class="info-val">121 sampel (57 Non-Veg + 64 Veg aktual)</span></li>
+            <li><span class="info-key">Split Data</span><span class="info-val">60% Training / 40% Testing</span></li>
+            <li><span class="info-key">Seed</span><span class="info-val">42</span></li>
+            <li><span class="info-key">Stratifikasi</span><span class="info-val">Proportional per kelas (randomColumn per class/year)</span></li>
+          </ul>
+        </div>
+
+        <!-- Card: Random Forest -->
+        <div class="info-card animate-in delay-4">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: rgba(249,115,22,0.15); color: var(--accent-orange);">🌲</div>
+            <div>
+              <h3>Random Forest Classifier</h3>
+              <p>Parameter Model</p>
+            </div>
+          </div>
+          <ul class="info-list">
+            <li><span class="info-key">Algoritma</span><span class="info-val">Random Forest (ee.Classifier)</span></li>
+            <li><span class="info-key">Jumlah Trees</span><span class="info-val">100</span></li>
+            <li><span class="info-key">Max Depth</span><span class="info-val">Default (unlimited)</span></li>
+            <li><span class="info-key">Min Leaf Pop.</span><span class="info-val">1</span></li>
+            <li><span class="info-key">Variable Imp.</span><span class="info-val">Gini Impurity</span></li>
+            <li><span class="info-key">Output</span><span class="info-val">Peta Klasifikasi Tutupan Lahan</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Flowchart -->
+      <div class="flowchart-section">
+        <h2 class="section-title">📐 Diagram Alur Metodologi</h2>
+        <div class="flowchart">
+          <div class="flow-step">
+            <span class="step-icon">🛰️</span>
+            <span class="step-label">Sentinel-2</span>
+            <span class="step-sub">Citra Level-2A</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">⚙️</span>
+            <span class="step-label">Preprocessing</span>
+            <span class="step-sub">Cloud Mask + Composite</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">📌</span>
+            <span class="step-label">Ground Truth</span>
+            <span class="step-sub">500 Titik Sampel</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">🌲</span>
+            <span class="step-label">Random Forest</span>
+            <span class="step-sub">100 Trees, Seed 42</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">🎯</span>
+            <span class="step-label">Evaluasi</span>
+            <span class="step-sub">Confusion Matrix</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">🗺️</span>
+            <span class="step-label">Klasifikasi</span>
+            <span class="step-sub">Peta Tutupan Lahan</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <span class="step-icon">📈</span>
+            <span class="step-label">Change Analysis</span>
+            <span class="step-sub">Gain / Loss</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── TAB 3: EVALUASI MODEL ──────── -->
+    <section class="tab-panel" id="tab-eval">
+      <div class="eval-grid">
+        <!-- Confusion Matrix -->
+        <div class="eval-card">
+          <h3>📊 Confusion Matrix</h3>
+          <table class="confusion-matrix" id="confusion-matrix">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pred: Non-Veg (0)</th>
+                <th>Pred: Vegetasi (1)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cm-label">Aktual: Non-Veg (0)</td>
+                <td class="cm-tp">53</td>
+                <td class="cm-fn">4</td>
+              </tr>
+              <tr>
+                <td class="cm-label">Aktual: Vegetasi (1)</td>
+                <td class="cm-fp">1</td>
+                <td class="cm-tp">63</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px; font-size:12.5px; color:var(--text-muted, #8a8a8a);">
+            Total data testing: <strong>121 sampel</strong> (40% dari total data, split 60:40, seed 42) ·
+            TP: 63 &middot; TN: 53 &middot; FP: 4 &middot; FN: 1
+          </p>
+        </div>
+
+        <!-- Metrics -->
+        <div class="eval-card">
+          <h3>📈 Metrik Evaluasi (Kelas Target: Vegetasi)</h3>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-value" style="color: var(--accent-green);">95.87%</div>
+              <div class="metric-label">Overall Accuracy</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill" data-width="95.87" style="width: 0; background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));"></div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" style="color: var(--accent-cyan);">94.03%</div>
+              <div class="metric-label">Precision (Vegetasi)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill" data-width="94.03" style="width: 0; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));"></div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" style="color: var(--accent-purple);">98.44%</div>
+              <div class="metric-label">Recall (Vegetasi)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill" data-width="98.44" style="width: 0; background: linear-gradient(90deg, var(--accent-purple), var(--accent-orange));"></div>
+              </div>
+            </div>
+            <div class="metric-card" style="grid-column: 1 / -1;">
+              <div class="metric-value" style="color: var(--accent-yellow);">96.18%</div>
+              <div class="metric-label">F1-Score (Vegetasi)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill" data-width="96.18" style="width: 0; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-green));"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interpretation -->
+      <div class="interpretation-area">
+        <h3>📝 Interpretasi Hasil Evaluasi</h3>
+        <div class="interpretation-text">
+          <p>
+            Model Random Forest dengan <strong>100 trees</strong> dan split <strong>60% training / 40% testing</strong>
+            menunjukkan performa klasifikasi biner (Vegetasi vs Non-Vegetasi) yang tinggi, dengan
+            <strong>Overall Accuracy sebesar 95,87%</strong>, <strong>Precision 94,03%</strong>,
+            <strong>Recall 98,44%</strong>, dan <strong>F1-Score 96,18%</strong> untuk kelas target (Vegetasi).
+            Dari total <strong>121 data testing</strong>, model berhasil mengklasifikasikan dengan benar
+            <strong>53 piksel Non-Vegetasi</strong> dan <strong>63 piksel Vegetasi</strong>.
+          </p>
+          <br>
+          <p>
+            Recall 98,44% menunjukkan model hanya melewatkan <strong>1 piksel vegetasi</strong> dari total 64 piksel
+            vegetasi aktual (False Negative = 1), sehingga tetap sangat andal untuk mendeteksi keberadaan vegetasi.
+            Kesalahan terbesar terjadi pada <strong>4 piksel Non-Vegetasi</strong> yang salah diklasifikasikan sebagai
+            Vegetasi (False Positive = 4), kemungkinan disebabkan oleh kesamaan respons spektral pada area vegetasi
+            jarang/transisi dengan lahan terbuka. Secara keseluruhan, performa model tetap jauh di atas ambang minimum
+            80% dan layak digunakan untuk analisis perubahan tutupan vegetasi Kota Denpasar 2024–2025.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── TAB 4: INSIGHT HASIL ──────── -->
+    <section class="tab-panel" id="tab-insight">
+      <!-- Stats Overview -->
+      <div class="insight-stats">
+        <div class="stat-card green">
+          <div class="stat-icon">🌿</div>
+          <div class="stat-value" style="color: var(--accent-green);">4137.71</div>
+          <div class="stat-label">Luas Vegetasi 2024 (ha)</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">🌊</div>
+          <div class="stat-value" style="color: var(--accent-cyan);">4066.79</div>
+          <div class="stat-label">Luas Vegetasi 2025 (ha)</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">📉</div>
+          <div class="stat-value" style="color: var(--accent-red);">-70.92</div>
+          <div class="stat-label">Netto Perubahan (ha)</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value" style="color: var(--accent-yellow);">-1.71%</div>
+          <div class="stat-label">Persentase Perubahan</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">🟢</div>
+          <div class="stat-value" style="color: var(--accent-green);">536.82</div>
+          <div class="stat-label">Total Gain (ha)</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">🔴</div>
+          <div class="stat-value" style="color: var(--accent-red);">453.53</div>
+          <div class="stat-label">Total Loss (ha)</div>
+        </div>
+      </div>
+      <p style="text-align:center; font-size:11px; color:var(--text-muted,#8a8a8a); margin-top:-8px; margin-bottom:20px;">
+        Total Gain: 4.032 polygon · Total Loss: 3.745 polygon (hasil vectorize GeoJSON)
+      </p>
+
+      <!-- Detail Insights -->
+      <div class="insight-grid">
+        <!-- Lokasi Perubahan Terbesar -->
+        <div class="insight-card">
+          <h3>📍 Lokasi Perubahan Terbesar</h3>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-red);"></div>
+            <p><strong>Denpasar Barat</strong> — Titik loss individual terbesar (2,92 ha) ditemukan di kecamatan ini; total loss di seluruh kecamatan mencapai <strong>73,39 ha</strong>, terendah dibanding 3 kecamatan lain.</p>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-red);"></div>
+            <p><strong>Denpasar Timur</strong> — Titik loss terbesar kedua (2,30 ha) berada di sini; total loss kecamatan ini <strong>132,81 ha</strong>.</p>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-green);"></div>
+            <p><strong>Denpasar Selatan</strong> — Titik gain terbesar (3,01 ha) ditemukan di kecamatan ini; total gain kecamatan ini juga tertinggi, mencapai <strong>191,58 ha</strong>.</p>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-green);"></div>
+            <p><strong>Denpasar Selatan</strong> — Selain gain tertinggi, kecamatan ini juga mencatat <strong>total loss terbesar (149,32 ha)</strong> dari semua kecamatan, menunjukkan area ini paling dinamis perubahannya.</p>
+          </div>
+        </div>
+
+        <!-- Pola Distribusi -->
+        <div class="insight-card">
+          <h3>🔎 Pola Distribusi Perubahan</h3>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-cyan);"></div>
+            <p><strong>Ranking Gain per Kecamatan:</strong> Denpasar Selatan (191,58 ha) &gt; Denpasar Timur (140,15 ha) &gt; Denpasar Utara (107,97 ha) &gt; Denpasar Barat (88,16 ha).</p>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-purple);"></div>
+            <p><strong>Ranking Loss per Kecamatan:</strong> Denpasar Selatan (149,32 ha) &gt; Denpasar Timur (132,81 ha) &gt; Denpasar Utara (89,58 ha) &gt; Denpasar Barat (73,39 ha).</p>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-bullet" style="background: var(--accent-yellow);"></div>
+            <p><strong>Pola Umum:</strong> Urutan kecamatan untuk gain dan loss sama persis (Selatan &gt; Timur &gt; Utara &gt; Barat), menunjukkan kecamatan dengan aktivitas gain tinggi juga cenderung mengalami loss tinggi — indikasi area yang sedang mengalami dinamika tata guna lahan aktif, bukan area yang stabil.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="recommendation-box">
+        <h3>💡 Rekomendasi</h3>
+        <div class="rec-item">
+          <span class="rec-num">01</span>
+          <p class="rec-text"><strong>Penguatan Perlindungan RTH:</strong> Denpasar Selatan tercatat sebagai kecamatan dengan loss tertinggi (149,32 ha). Perlu regulasi ketat untuk mencegah konversi lahan hijau di kecamatan ini, termasuk penetapan zona lindung vegetasi oleh pemerintah kota.</p>
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">02</span>
+          <p class="rec-text"><strong>Perluasan Program Rehabilitasi:</strong> Denpasar Selatan mencatat gain tertinggi (191,58 ha) sekaligus loss tertinggi (149,32 ha) — kecamatan ini paling dinamis dan perlu jadi prioritas program rehabilitasi vegetasi. Denpasar Barat, dengan gain terendah (88,16 ha), juga perlu perhatian tambahan.</p>
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">03</span>
+          <p class="rec-text"><strong>Verifikasi Lapangan:</strong> Perlu survei lapangan untuk mengonfirmasi penyebab pasti gain/loss di titik-titik dengan perubahan terbesar (lihat Tab Peta Hasil), karena interpretasi citra satelit belum bisa memastikan penyebab spesifik (alih fungsi, rehabilitasi, atau faktor musiman).</p>
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">04</span>
+          <p class="rec-text"><strong>Integrasi Green Infrastructure:</strong> Pembangunan perumahan baru wajib menyertakan minimal 30% ruang terbuka hijau sesuai amanat Perda RTRW untuk mengurangi dampak urban heat island.</p>
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">05</span>
+          <p class="rec-text"><strong>Monitoring Berkala:</strong> Disarankan melakukan analisis perubahan vegetasi setiap 6 bulan menggunakan citra Sentinel-2 untuk deteksi dini deforestasi dan evaluasi efektivitas program penghijauan.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ════════════════════════ FOOTER ════════════════════════ -->
+  <footer class="footer">
+    <p>WebGIS Analisis Perubahan Vegetasi Kota Denpasar 2024–2025 &middot; Sentinel-2 &middot; Random Forest &middot; Google Earth Engine</p>
+    <p style="margin-top:4px; font-size:11px; opacity:0.75;">UAS Kapita Selekta Sistem Informasi &middot; Universitas Bakrie &middot; Tim: <!-- TODO: ganti dengan nama lengkap tim --> Dila, Rani, Sanzio (Kapita) &amp; Anggota 4, Zova, Jiel (Mahadata)</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+
+  <!-- Background music control: autoplay attempt + fallback on first user interaction + toggle -->
+  <script>
+    (function () {
+      var music = document.getElementById('bg-music');
+      var toggleBtn = document.getElementById('music-toggle');
+      music.volume = 0.35;
+
+      function tryPlay() {
+        var p = music.play();
+        if (p !== undefined) {
+          p.catch(function () {
+            // Autoplay blocked by browser — will retry on first user interaction
+          });
+        }
+      }
+
+      tryPlay();
+
+      ['click', 'keydown', 'touchstart'].forEach(function (evt) {
+        document.addEventListener(evt, function onceHandler() {
+          if (music.paused) tryPlay();
+        }, { once: true });
+      });
+
+      toggleBtn.addEventListener('click', function () {
+        if (music.paused) {
+          tryPlay();
+          toggleBtn.textContent = '🔊';
+        } else {
+          music.pause();
+          toggleBtn.textContent = '🔇';
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

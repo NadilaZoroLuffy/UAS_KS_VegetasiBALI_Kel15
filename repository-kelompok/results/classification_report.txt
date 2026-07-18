@@ -1,0 +1,13 @@
+Classification Report - Vegetasi Denpasar 2024-2025
+Split: 60% Training / 40% Testing
+============================================================
+
+Total Testing Data: 121 titik
+Confusion Matrix:
+TN=53, FP=4
+FN=1, TP=63
+
+Accuracy:  95.87%
+Precision: 94.03%
+Recall:    98.44%
+F1-Score:  96.18%

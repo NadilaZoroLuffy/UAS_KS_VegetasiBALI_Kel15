@@ -47,3 +47,53 @@ Proyek UAS Kapita Selekta Sistem Informasi — analisis perubahan tutupan vegeta
 cd webgis
 python -m http.server 8000
 # lalu buka http://localhost:8000 di browser
+
+## 📁 Struktur Folder
+repository-kelompok/
+├── gee/
+│   └── 02_modeling.js              # Script utama Google Earth Engine
+├── data/                           # File GeoJSON untuk WebGIS
+│   ├── Batas_Kota_Denpasar.geojson
+│   ├── Target_Veg_2024.geojson
+│   ├── Target_Veg_2025.geojson
+│   ├── Gain_Veg.geojson
+│   └── Loss_Veg.geojson
+├── results/                        # Hasil export & analisis
+│   ├── Raster_Classified_2024.tif
+│   ├── Raster_Classified_2025.tif
+│   ├── Raster_Change_Map.tif
+│   ├── Testing_Data_Denpasar_Vegetasi.csv
+│   ├── gain_tiap_kecamatan.csv
+│   ├── loss_tiap_kecamatan.csv
+│   ├── confusion_matrix.png
+│   ├── aprf_chart.png
+│   └── classification_report.txt
+├── report/                         # Dokumen Laporan
+│   └── Laporan_UAS_Vegetasi_Denpasar.pdf
+├── webgis/                         # Source code WebGIS
+│   ├── index.html
+│   ├── css/style.css
+│   ├── js/script.js
+│   ├── js/data.js
+│   └── data/                       # Salinan file GeoJSON untuk local hosting
+└── README.md
+
+##💡 Fitur WebGIS
+Tab Peta Hasil — Peta interaktif (batas kota, vegetasi 2024/2025, gain, loss), layer control (OSM, Dark, Satellite), dan popup info luas per polygon.
+Tab Data & Proses — Transparansi metodologi: sumber data, preprocessing, ground truth, parameter model, dan diagram alur.
+Tab Evaluasi Model — Visualisasi confusion matrix, metrik APRF (Accuracy, Precision, Recall, F1-Score), dan interpretasi kesalahan model.
+Tab Insight Hasil — Ringkasan luas & perubahan, lokasi perubahan terbesar per kecamatan, pola distribusi, dan rekomendasi kebijakan.
+
+##📄 Laporan
+Laporan akhir (PDF 5-8 halaman) berisi metodologi lengkap, pembahasan, dan kesimpulan dapat diunduh di:
+📥 Download Laporan UAS (Update link ini setelah file diupload ke GitHub)
+
+## 🔬 Metodologi Singkat
+Sentinel-2 → Preprocessing (Cloud Mask QA60+SCL + Median Composite) 
+→ Feature Stack (B2, B3, B4, B8, B11, B12, NDVI, NDWI, NDBI)
+→ Ground Truth (300 titik) → Split Data 60:40 
+→ Random Forest (100 trees) → Evaluasi (Confusion Matrix, APRF) 
+→ Klasifikasi Raster 2024 & 2025 → Change Analysis (Gain/Loss)
+→ Vectorize (Simplify 2m, filter >1 Ha) → WebGIS
+
+© 2026 Kelompok 15 - Kapita Selekta Sistem Informasi, Universitas Bakrie

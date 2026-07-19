@@ -61,7 +61,7 @@ python -m http.server 8000
 📁 Struktur Folder
 repository-kelompok/
 ├── gee/
-│   └── 02_modeling.js              # Script utama Google Earth Engine
+│   └── Final_Code.js              # Script utama Google Earth Engine
 ├── data/                           # File GeoJSON untuk WebGIS
 │   ├── Batas_Kota_Denpasar.geojson
 │   ├── Target_Veg_2024.geojson

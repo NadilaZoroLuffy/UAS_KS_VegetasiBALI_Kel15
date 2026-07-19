@@ -44,7 +44,7 @@ Tab Data & Proses — Transparansi metodologi: sumber data, preprocessing, groun
 Tab Evaluasi Model — Visualisasi confusion matrix, metrik APRF (Accuracy, Precision, Recall, F1-Score), dan interpretasi kesalahan model.
 Tab Insight Hasil — Ringkasan luas & perubahan, lokasi perubahan terbesar per kecamatan, pola distribusi, dan rekomendasi kebijakan.
 
-##📄 Laporan
+## 📄 Laporan
 Laporan akhir (PDF 5-8 halaman) berisi metodologi lengkap, pembahasan, dan kesimpulan dapat diunduh di:
 📥 Download Laporan UAS (Update link ini setelah file diupload ke GitHub)
 
@@ -58,7 +58,7 @@ cd webgis
 python -m http.server 8000
 # lalu buka http://localhost:8000 di browser
 
-## 📁 Struktur Folder
+📁 Struktur Folder
 repository-kelompok/
 ├── gee/
 │   └── 02_modeling.js              # Script utama Google Earth Engine
@@ -88,7 +88,7 @@ repository-kelompok/
 │   └── data/                       # Salinan file GeoJSON untuk local hosting
 └── README.md
 
-## 🔬 Metodologi Singkat
+🔬 Metodologi Singkat
 Sentinel-2 → Preprocessing (Cloud Mask QA60+SCL + Median Composite) 
 → Feature Stack (B2, B3, B4, B8, B11, B12, NDVI, NDWI, NDBI)
 → Ground Truth (300 titik) → Split Data 60:40 

@@ -30,6 +30,34 @@ Proyek UAS Kapita Selekta Sistem Informasi — analisis perubahan tutupan vegeta
   - Perubahan bersih: **-70,92 ha (-1,71%)** ⬇️
   - Overall Accuracy model: **95,87%** | Recall (Vegetasi): **98,44%**
 
+## 📈 Dinamika Perubahan per Kecamatan
+| Kecamatan | Luas Loss (ha) | Luas Gain (ha) | Keterangan |
+| :--- | :---: | :---: | :--- |
+| **Denpasar Selatan** | 151,15 | 193,07 | Area paling dinamis (perubahan tertinggi) |
+| **Denpasar Timur** | 134,59 | 142,13 | Perubahan tinggi |
+| **Denpasar Utara** | 91,95 | 110,86 | Perubahan sedang |
+| **Denpasar Barat** | 75,49 | 91,38 | Perubahan relatif rendah |
+
+## 💡 Fitur WebGIS
+Tab Peta Hasil — Peta interaktif (batas kota, vegetasi 2024/2025, gain, loss), layer control (OSM, Dark, Satellite), dan popup info luas per polygon.
+Tab Data & Proses — Transparansi metodologi: sumber data, preprocessing, ground truth, parameter model, dan diagram alur.
+Tab Evaluasi Model — Visualisasi confusion matrix, metrik APRF (Accuracy, Precision, Recall, F1-Score), dan interpretasi kesalahan model.
+Tab Insight Hasil — Ringkasan luas & perubahan, lokasi perubahan terbesar per kecamatan, pola distribusi, dan rekomendasi kebijakan.
+
+##📄 Laporan
+Laporan akhir (PDF 5-8 halaman) berisi metodologi lengkap, pembahasan, dan kesimpulan dapat diunduh di:
+📥 Download Laporan UAS (Update link ini setelah file diupload ke GitHub)
+
+## 🚀 Cara Membuka WebGIS
+
+**Live demo**: [https://vegetasi-ks-denpasar.vercel.app/](https://vegetasi-ks-denpasar.vercel.app/)
+
+**Menjalankan secara lokal** *(wajib pakai local server, tidak bisa double-klik langsung karena WebGIS memuat data GeoJSON via `fetch()`)*:
+```bash
+cd webgis
+python -m http.server 8000
+# lalu buka http://localhost:8000 di browser
+
 ## 📁 Struktur Folder
 repository-kelompok/
 ├── gee/
@@ -60,24 +88,6 @@ repository-kelompok/
 │   └── data/                       # Salinan file GeoJSON untuk local hosting
 └── README.md
 
-### 📈 Dinamika Perubahan per Kecamatan
-| Kecamatan | Luas Loss (ha) | Luas Gain (ha) | Keterangan |
-| :--- | :---: | :---: | :--- |
-| **Denpasar Selatan** | 151,15 | 193,07 | Area paling dinamis (perubahan tertinggi) |
-| **Denpasar Timur** | 134,59 | 142,13 | Perubahan tinggi |
-| **Denpasar Utara** | 91,95 | 110,86 | Perubahan sedang |
-| **Denpasar Barat** | 75,49 | 91,38 | Perubahan relatif rendah |
-
-##💡 Fitur WebGIS
-Tab Peta Hasil — Peta interaktif (batas kota, vegetasi 2024/2025, gain, loss), layer control (OSM, Dark, Satellite), dan popup info luas per polygon.
-Tab Data & Proses — Transparansi metodologi: sumber data, preprocessing, ground truth, parameter model, dan diagram alur.
-Tab Evaluasi Model — Visualisasi confusion matrix, metrik APRF (Accuracy, Precision, Recall, F1-Score), dan interpretasi kesalahan model.
-Tab Insight Hasil — Ringkasan luas & perubahan, lokasi perubahan terbesar per kecamatan, pola distribusi, dan rekomendasi kebijakan.
-
-##📄 Laporan
-Laporan akhir (PDF 5-8 halaman) berisi metodologi lengkap, pembahasan, dan kesimpulan dapat diunduh di:
-📥 Download Laporan UAS (Update link ini setelah file diupload ke GitHub)
-
 ## 🔬 Metodologi Singkat
 Sentinel-2 → Preprocessing (Cloud Mask QA60+SCL + Median Composite) 
 → Feature Stack (B2, B3, B4, B8, B11, B12, NDVI, NDWI, NDBI)
@@ -85,15 +95,5 @@ Sentinel-2 → Preprocessing (Cloud Mask QA60+SCL + Median Composite)
 → Random Forest (100 trees) → Evaluasi (Confusion Matrix, APRF) 
 → Klasifikasi Raster 2024 & 2025 → Change Analysis (Gain/Loss)
 → Vectorize (Simplify 2m, filter >1 Ha) → WebGIS
-
-## 🚀 Cara Membuka WebGIS
-
-**Live demo**: [https://vegetasi-ks-denpasar.vercel.app/](https://vegetasi-ks-denpasar.vercel.app/)
-
-**Menjalankan secara lokal** *(wajib pakai local server, tidak bisa double-klik langsung karena WebGIS memuat data GeoJSON via `fetch()`)*:
-```bash
-cd webgis
-python -m http.server 8000
-# lalu buka http://localhost:8000 di browser
 
 © 2026 Kelompok 15 - Kapita Selekta Sistem Informasi, Universitas Bakrie

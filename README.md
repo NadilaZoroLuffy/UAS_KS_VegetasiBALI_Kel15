@@ -46,7 +46,7 @@ Tab Insight Hasil — Ringkasan luas & perubahan, lokasi perubahan terbesar per 
 
 ## 📄 Laporan
 Laporan akhir (PDF 5-8 halaman) berisi metodologi lengkap, pembahasan, dan kesimpulan dapat diunduh di:
-📥 Download Laporan UAS (Update link ini setelah file diupload ke GitHub)
+📥 Download Laporan UAS https://github.com/NadilaZoroLuffy/UAS_KS_VegetasiBALI_Kel15/blob/521d75e08a1c72e8e89d99c141dfb4a6fe9cbdb4/repository-kelompok/report/Laporan%20UAS%20Project%20GEO-AI%20Kelompok%2015.pdf
 
 ## 🚀 Cara Membuka WebGIS
 
